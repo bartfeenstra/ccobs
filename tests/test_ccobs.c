@@ -1,31 +1,37 @@
 #include "../src/ccobs.c"
-#include <stdbool.h>
-#include <stdio.h>
-#include "unity.h"
+#include <criterion/criterion.h>
+#include <criterion/parameterized.h>
 
-void test_stuff_single_byte() {
-    char unstuffed[1] = {0};
-    size_t unstuffed_length = 1;
-    char stuffed_expected[3] = {1, 1, 0};
-    char stuffed_actual[999] = "";
-    size_t stuffed_actual_length = 0;
+struct stuffing_parameter {
+    unsigned char unstuffed[999];
+    size_t unstuffed_length;
+    unsigned char stuffed[999];
+    size_t stuffed_length;
+};
 
-//    @todo
-//    @todo Print bytes as hex (https://stackoverflow.com/questions/6357031/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-in-c)
-//    @todo
-    printf("\nSTUFFED BEFORE TEST: \n%s", stuffed_actual);
-    bool result = stuff(unstuffed, unstuffed_length, stuffed_actual, &stuffed_actual_length);
-    TEST_ASSERT_EQUAL_BOOL(true, result)
-    printf("\nSTUFFED AFTER TEST: \n%s", stuffed_actual);
-    printf("\n");
-    // if (stuffed_expected != stuffed_actual) {
-    //     printf("Stuffing a single byte failed.");
-    //     return 1;
-    // }
+static struct stuffing_parameter stuffing_parameters[] = {
+        {{0}, 1, {1, 1, 0}, 3},
+        {{0, 0}, 2, {1, 1, 1, 0}, 4},
+        {{1, 2, 0, 3}, 4, {3, 1, 2, 2, 3, 0}, 6},
+};
+
+ParameterizedTestParameters(ccobs, stuff) {
+    return cr_make_param_array(struct stuffing_parameter, stuffing_parameters, sizeof (stuffing_parameters) / sizeof (struct stuffing_parameter));
 }
 
-int main() {
-    test_stuff_single_byte();
+ParameterizedTest(struct stuffing_parameter *parameter, ccobs, stuff) {
+    unsigned char stuffed_actual[999] = "";
+    size_t stuffed_length_actual = 0;
+    bool result = stuff(parameter->unstuffed, parameter->unstuffed_length, stuffed_actual, &stuffed_length_actual);
+    cr_assert_eq(true, result);
+    cr_assert_eq(parameter->stuffed_length, stuffed_length_actual, "%d is not equal to expected %d.", stuffed_length_actual, parameter->stuffed_length);
+    cr_assert_eq(parameter->stuffed, stuffed_actual, "%.*X is not equal to expected %.*X.", stuffed_length_actual, *stuffed_actual, parameter->stuffed_length, *parameter->stuffed);
+}
 
-    return 0;
+ParameterizedTestParameters(ccobs, unstuff) {
+    return cr_make_param_array(struct stuffing_parameter, stuffing_parameters, sizeof (stuffing_parameters) / sizeof (struct stuffing_parameter));
+}
+
+ParameterizedTest(struct stuffing_parameter *parameter, ccobs, unstuff) {
+    // @todo Finish this.
 }
