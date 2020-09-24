@@ -22,4 +22,4 @@ clean:
 
 tests.out: tests/test_ccobs.c
 	@echo Compiling $@
-	@$(CC) $(CFLAGS) tests/test_ccobs.c -o tests.out
+	@$(CC) $(CFLAGS) tests/test_ccobs.c -lcriterion -o tests.out
