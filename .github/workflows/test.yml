@@ -10,6 +10,12 @@ jobs:
       - name: Check out the source code
         uses: actions/checkout@v2
 
+      - name: Add APT repositories
+        run: sudo add-apt-repository ppa:snaipewastaken/ppa
+
+      - name: Update the APT lists
+        run: sudo apt-get update
+
       - name: Install APT dependencies
         run: sudo apt-get install criterion-dev
 
