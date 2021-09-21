@@ -1,0 +1,17 @@
+name: Test
+
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Install APT dependencies
+        run: apt-get install criterion-dev
+
+      - name: Run the tests
+        run: make test

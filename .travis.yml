@@ -1,9 +1,0 @@
-sudo: required
-
-language: c
-
-install:
-  - apt-get install criterion-dev
-
-script:
-  - make test
